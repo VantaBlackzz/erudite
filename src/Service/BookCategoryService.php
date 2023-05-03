@@ -6,8 +6,6 @@ use App\Entity\BookCategory;
 use App\Model\BookCategoryListItem;
 use App\Model\BookCategoryListResponse;
 use App\Repository\BookCategoryRepository;
-use Doctrine\Common\Collections\Criteria;
-
 class BookCategoryService
 {
     public function __construct(private readonly BookCategoryRepository $bookCategoryRepository)
@@ -16,7 +14,7 @@ class BookCategoryService
 
     public function getCategories(): BookCategoryListResponse
     {
-        $categories = $this->bookCategoryRepository->findBy([], ['title' => Criteria::ASC]);
+        $categories = $this->bookCategoryRepository->findAllSortedByTitle();
 
         $items = array_map(
             callback: fn (BookCategory $bookCategory) => new BookCategoryListItem(
