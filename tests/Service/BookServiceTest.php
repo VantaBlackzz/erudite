@@ -1,9 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service;
 
 use App\Entity\Book;
-use App\Entity\BookCategory;
 use App\Exception\BookCategoryNotFoundException;
 use App\Model\BookListItem;
 use App\Model\BookListResponse;
@@ -15,7 +16,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 class BookServiceTest extends AbstractTestCase
 {
-
     public function testGetBooksByCategoryNotFound(): void
     {
         $bookRepository = $this->createMock(BookRepository::class);

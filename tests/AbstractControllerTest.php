@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests;
 
 use Doctrine\ORM\EntityManagerInterface;
@@ -7,7 +9,7 @@ use Helmich\JsonAssert\JsonAssertions;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class AbstractControllerTest extends WebTestCase
+abstract class AbstractControllerTest extends WebTestCase
 {
     use JsonAssertions;
 

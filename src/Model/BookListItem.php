@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Model;
 
 class BookListItem
@@ -79,6 +81,7 @@ class BookListItem
 
     /**
      * @param string[] $authors
+     *
      * @return $this
      */
     public function setAuthors(array $authors): self

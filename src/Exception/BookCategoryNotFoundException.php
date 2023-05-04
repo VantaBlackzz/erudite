@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Exception;
+declare(strict_types=1);
 
-use Symfony\Component\HttpFoundation\Response;
+namespace App\Exception;
 
 class BookCategoryNotFoundException extends \RuntimeException
 {
     public function __construct()
     {
-        parent::__construct(message: 'book category not found', code: Response::HTTP_NOT_FOUND);
+        parent::__construct(message: 'book category not found');
     }
 }
