@@ -36,7 +36,7 @@ class SubscribeController extends AbstractController
     )]
     #[OA\Tag(name: 'Subscribe to newsletter')]
     #[Route(path: 'api/v1/subscribe', methods: ['POST'])]
-    public function action(#[RequestBody] SubscriberRequest $subscriberRequest): Response
+    public function subscribe(#[RequestBody] SubscriberRequest $subscriberRequest): Response
     {
         $this->subscriberService->subscribe($subscriberRequest);
 
