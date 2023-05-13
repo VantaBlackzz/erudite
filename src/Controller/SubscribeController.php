@@ -34,7 +34,7 @@ class SubscribeController extends AbstractController
         response: 409,
         description: 'Subscriber already exists',
     )]
-    #[OA\Tag(name: 'Subscribe to newsletter')]
+    #[OA\Tag(name: 'Subscribe')]
     #[Route(path: 'api/v1/subscribe', methods: ['POST'])]
     public function subscribe(#[RequestBody] SubscriberRequest $subscriberRequest): Response
     {

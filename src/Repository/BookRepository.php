@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\Book;
+use App\Entity\BookToBookFormat;
+use App\Exception\BookNotFoundException;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Book>
- *
  * @method Book|null find($id, $lockMode = null, $lockVersion = null)
  * @method Book|null findOneBy(array $criteria, array $orderBy = null)
  * @method Book[]    findAll()
@@ -18,15 +18,27 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class BookRepository extends ServiceEntityRepository
 {
+    use RepositoryModifyTrait;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Book::class);
     }
 
+    public function saveBookFormatReference(BookToBookFormat $bookToBookFormat): void
+    {
+        $this->_em->persist($bookToBookFormat);
+    }
+
+    public function removeBookFormatReference(BookToBookFormat $bookToBookFormat): void
+    {
+        $this->_em->remove($bookToBookFormat);
+    }
+
     /**
      * @return Book[]
      */
-    public function findBooksByCategoryId(int $id): array
+    public function findPublishedBooksByCategoryId(int $id): array
     {
         return $this->_em
             ->createQuery('SELECT b FROM App\Entity\Book b WHERE :categoryId MEMBER OF b.categories AND b.publicationDate IS NOT NULL')
@@ -34,21 +46,41 @@ class BookRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function save(Book $entity, bool $flush = false): void
+    public function getPublishedById(int $id): Book
     {
-        $this->getEntityManager()->persist($entity);
+        $book = $this->_em->createQuery('SELECT b FROM App\Entity\Book b WHERE b.id = :id AND b.publicationDate IS NOT NULL')
+            ->setParameter('id', $id)
+            ->getOneOrNullResult();
 
-        if ($flush) {
-            $this->getEntityManager()->flush();
+        if (null === $book) {
+            throw new BookNotFoundException();
         }
+
+        return $book;
     }
 
-    public function remove(Book $entity, bool $flush = false): void
+    /**
+     * @return Book[]
+     */
+    public function findBooksByIds(array $ids): array
     {
-        $this->getEntityManager()->remove($entity);
+        return $this->_em->createQuery('SELECT b FROM App\Entity\Book b WHERE b.id IN (:ids) AND b.publicationDate IS NOT NULL')
+            ->setParameter('ids', $ids)
+            ->getResult();
+    }
 
-        if ($flush) {
-            $this->getEntityManager()->flush();
+    public function getBookById(int $id): Book
+    {
+        $book = $this->find($id);
+        if (null === $book) {
+            throw new BookNotFoundException();
         }
+
+        return $book;
+    }
+
+    public function existsBySlug(string $slug): bool
+    {
+        return null !== $this->findOneBy(['slug' => $slug]);
     }
 }

@@ -48,10 +48,12 @@ class BookRepositoryTest extends AbstractRepositoryTest
     private function createBook(string $title, BookCategory $bookCategory): Book
     {
         return (new Book())
-            ->setPublicationDate(new \DateTime())
+            ->setPublicationDate(new \DateTimeImmutable())
             ->setAuthors(['test Author'])
             ->setMeap(false)
             ->setSlug($title)
+            ->setDescription('description')
+            ->setIsbn('123')
             ->setCategories(new ArrayCollection([$bookCategory]))
             ->setTitle($title)
             ->setImage('https://testlocalhost/'.$title.'.png');

@@ -11,7 +11,7 @@ use App\Tests\AbstractTestCase;
 
 class SubscriberServiceTest extends AbstractTestCase
 {
-    private SubscriberRepository $subscriberRepository;
+    private SubscriberRepository $repository;
 
     private const EMAIL = 'test@test.com';
 
@@ -19,14 +19,14 @@ class SubscriberServiceTest extends AbstractTestCase
     {
         parent::setUp();
 
-        $this->subscriberRepository = $this->createMock(SubscriberRepository::class);
+        $this->repository = $this->createMock(SubscriberRepository::class);
     }
 
     public function testSubscribeAlreadyExists(): void
     {
         $this->expectException(SubscriberAlreadyExistsException::class);
 
-        $this->subscriberRepository->expects($this->once())
+        $this->repository->expects($this->once())
             ->method('existsByEmail')
             ->with(self::EMAIL)
             ->willReturn(true);
@@ -34,12 +34,12 @@ class SubscriberServiceTest extends AbstractTestCase
         $request = new SubscriberRequest();
         $request->setEmail(self::EMAIL);
 
-        (new SubscriberService($this->subscriberRepository))->subscribe($request);
+        (new SubscriberService($this->repository))->subscribe($request);
     }
 
     public function testSubscribe(): void
     {
-        $this->subscriberRepository->expects($this->once())
+        $this->repository->expects($this->once())
             ->method('existsByEmail')
             ->with(self::EMAIL)
             ->willReturn(false);
@@ -50,10 +50,10 @@ class SubscriberServiceTest extends AbstractTestCase
         $request = new SubscriberRequest();
         $request->setEmail(self::EMAIL);
 
-        $this->subscriberRepository->expects($this->once())
+        $this->repository->expects($this->once())
             ->method('saveAndCommit')
             ->with($expectedSubscriber);
 
-        (new SubscriberService($this->subscriberRepository))->subscribe($request);
+        (new SubscriberService($this->repository))->subscribe($request);
     }
 }

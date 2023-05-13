@@ -6,17 +6,23 @@ namespace App\Service;
 
 use App\Entity\Book;
 use App\Exception\BookCategoryNotFoundException;
+use App\Mapper\BookMapper;
+use App\Model\BookDetails;
 use App\Model\BookListItem;
 use App\Model\BookListResponse;
 use App\Repository\BookCategoryRepository;
 use App\Repository\BookRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 
 class BookService
 {
     public function __construct(
         private readonly BookRepository $bookRepository,
-        private readonly BookCategoryRepository $bookCategoryRepository
-    ) {
+        private readonly BookCategoryRepository $bookCategoryRepository,
+        private readonly BookChapterService $bookChapterService,
+        private readonly RatingService $ratingService)
+    {
     }
 
     public function getBooksByCategory(int $categoryId): BookListResponse
@@ -25,23 +31,34 @@ class BookService
             throw new BookCategoryNotFoundException();
         }
 
-        return new BookListResponse(
-            array_map(
-                callback: [$this, 'map'],
-                array: $this->bookRepository->findBooksByCategoryId($categoryId)
-            )
-        );
+        return new BookListResponse(array_map(
+            function (Book $book) {
+                $item = new BookListItem();
+                BookMapper::map($book, $item);
+
+                return $item;
+            },
+            $this->bookRepository->findPublishedBooksByCategoryId($categoryId)
+        ));
     }
 
-    private function map(Book $book): BookListItem
+    /**
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     */
+    public function getBookById(int $id): BookDetails
     {
-        return (new BookListItem())
-            ->setId($book->getId())
-            ->setTitle($book->getTitle())
-            ->setSlug($book->getSlug())
-            ->setImage($book->getImage())
-            ->setAuthors($book->getAuthors())
-            ->setMeap($book->isMeap())
-            ->setPublicationDate($book->getPublicationDate()->getTimestamp());
+        $book = $this->bookRepository->getPublishedById($id);
+        $rating = $this->ratingService->calcReviewRatingForBook($id);
+        $details = new BookDetails();
+
+        BookMapper::map($book, $details);
+
+        return $details
+            ->setRating($rating->getRating())
+            ->setReviews($rating->getTotal())
+            ->setFormats(BookMapper::mapFormats($book))
+            ->setCategories(BookMapper::mapCategories($book))
+            ->setChapters($this->bookChapterService->getChaptersTree($book)->getItems());
     }
 }

@@ -19,12 +19,14 @@ class BookFixtures extends Fixture implements DependentFixtureInterface
 
         $book = (new Book())
             ->setTitle('Easy-peasy JS')
-            ->setPublicationDate(new \DateTime('2015-10-01'))
+            ->setPublicationDate(new \DateTimeImmutable('2015-10-01'))
             ->setMeap(false)
             ->setAuthors(['Torsten Stock'])
             ->setSlug('easy-peasy-js')
             ->setCategories(new ArrayCollection([$frontendCategory, $backendCategory]))
-            ->setImage('https://media.proglib.io/posts/2020/03/01/8a2f3a927258b1ae95c883de5ac39809.jpg');
+            ->setImage('https://media.proglib.io/posts/2020/03/01/8a2f3a927258b1ae95c883de5ac39809.jpg')
+            ->setIsbn('123321')
+            ->setDescription('test description');
 
         $manager->persist($book);
         $manager->flush();
